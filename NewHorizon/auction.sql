@@ -1,0 +1,134 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
+USE `mydb` ;
+
+-- -----------------------------------------------------
+-- Table `mydb`.`AUCTION_TYPES`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`AUCTION_TYPES` (
+  `ID` INT NOT NULL,
+  `TYPE` VARCHAR(45) NOT NULL,
+  `DESCRIPTION` LONGTEXT NULL,
+  `ACVTIVE` BINARY(1) NOT NULL,
+  PRIMARY KEY (`ID`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`AUCTION`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`AUCTION` (
+  `ID` INT NULL,
+  `AUCTION_TYPES_ID` INT NOT NULL,
+  `TITLE` VARCHAR(45) NOT NULL,
+  `DESCRIPTION` LONGTEXT NULL,
+  `ITEM_ID` VARCHAR(45) NOT NULL,
+  `ITEM_NAME` VARCHAR(45) NOT NULL,
+  `ITEM_DESCRIPTION` LONGTEXT NULL,
+  `DONOR_NAME` VARCHAR(45) NULL,
+  `DONOR_USER_ID` VARCHAR(45) NULL,
+  `START_TIME` DATETIME NULL,
+  `END_TIME` DATETIME NULL,
+  `REF_AUCTION_ID` INT NULL,
+  PRIMARY KEY (`ID`),
+  INDEX `fk_AUCTION_AUCTION_TYPES_idx` (`AUCTION_TYPES_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_AUCTION_AUCTION_TYPES`
+    FOREIGN KEY (`AUCTION_TYPES_ID`)
+    REFERENCES `mydb`.`AUCTION_TYPES` (`ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`AUCTION_STATUS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`AUCTION_STATUS` (
+  `ID` INT NOT NULL,
+  `STATUS` VARCHAR(45) NOT NULL,
+  `DESCRIPTIONS` LONGTEXT NULL,
+  PRIMARY KEY (`ID`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`AUCTION_HISTORY`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`AUCTION_HISTORY` (
+  `ID` INT NOT NULL,
+  `AUCTION_ID` INT NOT NULL,
+  `AUCTION_STATUS_ID` INT NOT NULL,
+  `ITEM_PRICE` DECIMAL NOT NULL,
+  `BIDDER_ID` INT NULL,
+  `BIDDER_USER_NAME` VARCHAR(45) NULL,
+  `COORDINATOR_ID` INT NULL,
+  `COORDINATOR_USER_NAME` VARCHAR(45) NULL,
+  `TIME_STAMP` DATETIME NOT NULL,
+  PRIMARY KEY (`ID`, `AUCTION_ID`),
+  INDEX `fk_AUCTION_HISTORY_AUCTION1_idx` (`AUCTION_ID` ASC) VISIBLE,
+  INDEX `fk_AUCTION_HISTORY_AUCTION_STATUS1_idx` (`AUCTION_STATUS_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_AUCTION_HISTORY_AUCTION1`
+    FOREIGN KEY (`AUCTION_ID`)
+    REFERENCES `mydb`.`AUCTION` (`ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_AUCTION_HISTORY_AUCTION_STATUS1`
+    FOREIGN KEY (`AUCTION_STATUS_ID`)
+    REFERENCES `mydb`.`AUCTION_STATUS` (`ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`AUCTION_RULE_DEFINITION`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`AUCTION_RULE_DEFINITION` (
+  `ID` INT NOT NULL,
+  `RULE_NAME` VARCHAR(45) NULL,
+  `RULES_TYPE` VARCHAR(45) NULL,
+  `RULES_DESCRIPTION` LONGTEXT NULL,
+  `RULE` JSON NULL,
+  `ACTIVE` BINARY(1) NULL,
+  PRIMARY KEY (`ID`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`AUCTION_RULES`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`AUCTION_RULES` (
+  `ID` INT NOT NULL,
+  `AUCTION_ID` INT NULL,
+  `AUCTION_RULES_ID` INT NULL,
+  PRIMARY KEY (`ID`),
+  INDEX `fk_AUCTION_RULES_AUCTION1_idx` (`AUCTION_ID` ASC) VISIBLE,
+  INDEX `fk_AUCTION_RULES_AUCTION_RULE_DEFINITION1_idx` (`AUCTION_RULES_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_AUCTION_RULES_AUCTION1`
+    FOREIGN KEY (`AUCTION_ID`)
+    REFERENCES `mydb`.`AUCTION` (`ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_AUCTION_RULES_AUCTION_RULE_DEFINITION1`
+    FOREIGN KEY (`AUCTION_RULES_ID`)
+    REFERENCES `mydb`.`AUCTION_RULE_DEFINITION` (`ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
